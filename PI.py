@@ -35,7 +35,6 @@ try:
 	tf.moveCursor(home=True)
 	tf.echoKeys(disable=True)
 	tf.cursorVisibility(hide=True)
-	tf.stopSleep()
 
 	currentDigit=0
 	currentChar=0
