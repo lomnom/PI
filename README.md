@@ -12,5 +12,5 @@ When stopped with `ctrl-c`, it will make a file called `PI.txt` with all the pro
 ![output](https://github.com/lomnom/PI/blob/main/Screenshots/Screenshot%202021-05-20%20at%201.13.29%20PM.png)
 
 ## Dependencies:
-- [ASCIIFUNC](https://github.com/lomnom/TERMINALFUNC)  
+- [TERMINALFUNC](https://github.com/lomnom/TERMINALFUNC)  
 The other dependencies are already dependencies of TERMINALFUNC
