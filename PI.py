@@ -29,92 +29,94 @@ digitColors={
 }
 
 try:
-	startTime=time.perf_counter() #for calculating avg later
-
+	# prepare the screen
 	tf.fillWithSpaces()
 	tf.moveCursor(home=True)
 	tf.echoKeys(disable=True)
 	tf.cursorVisibility(hide=True)
 
+	#set the progress variables
 	currentDigit=0
 	currentChar=0
 
 	size=tf.getTerminalSize()
-	minimumFrameDelta=float(argv[1])
-
 	saver=tf.CursorSaver()
-	currentFrameStartTime=time.perf_counter()
-
 	digits=""
 
 	try:
-		f.remove("pi.txt")
-	except:
-		pass
+		frameLimiter=tf.FramerateLimiter(1/int(argv[1]))
+	except ZeroDivisionError:
+		frameLimiter=tf.FramerateLimiter(None)
+	frameChecker=tf.FramerateTracker()
 
 	for digit in generatePi():
-		currentFrameEndTime=time.perf_counter()
-		currentFrameRenderTime=currentFrameEndTime-currentFrameStartTime
+		if not currentDigit==0:
+			frameLimiter.endFrame()
+			frameLimiter.delayTillNextFrame()
+			frameChecker.endFrame()
 
-		if currentFrameRenderTime<minimumFrameDelta:
-			time.sleep(minimumFrameDelta-currentFrameRenderTime)
-
-		currentFrameStartTime=time.perf_counter()
+		frameChecker.startFrame()
+		frameLimiter.startFrame()
 
 		digits+=str(digit) #add digit to cache
 
-		tf.print(e.Escapes.Style.reset+
-				 digitColors[digit]+
-				 str(digit)
+		tf.print(
+					tf.style(reset=True)+
+					digitColors[digit]+
+					str(digit)
 				)
 
 		if currentDigit==0: #print decimal point
-			tf.changeStyle(bold=True,color8="blue",foreground=True)
-			tf.print(".")
-
+			tf.print(tf.style(bold=True,color8="blue",foreground=True)+".")
 			currentChar+=1
 			digits+="." #add dp to cache
 
+		# update progress
 		currentDigit+=1
 		currentChar+=1
 
+		# check if at end of line, move all pi digits up if so
 		if currentChar%size["columns"]==0:
 			tf.print("\n\n")
 			tf.changeStyle(reset=True)
 			tf.moveCursor(up=1)
-			tf.clear(line=True)
+			tf.clear(line=True) #clear the now higher progress
 
-		saver.save(0)
-		tf.moveCursor(to={"column":0,"row":size["rows"]})
-		tf.changeStyle(reset=True)
-		tf.changeStyle(invert=True,bold=True,italic=True)
-		tf.clear(line=True)
+		saver.save(0) #save the position to the next pi digit
 
-		timeSinceStart=time.perf_counter()-startTime
-		avgCompTime=timeSinceStart/currentDigit
-		avgDigitsPerSec=currentDigit/timeSinceStart
+		tf.moveCursor(to={"column":0,"row":size["rows"]}) #move to bottom left
+		tf.changeStyle(reset=True) #clear the pi digit color
+		tf.changeStyle(invert=True,bold=True,italic=True) #get the progress bar style
+		tf.clear(line=True) #clear the old progress bar
 
+		#draw progress bar
 		tf.print("currently at "+str(currentDigit)+
-			"th digit of pi. Avg digits per second: "+str(avgDigitsPerSec)+
+			"th digit of pi. Avg digits per second: "+str(frameChecker.calculateAverageFPS())+
 			"d/s.")
-		saver.load(0)
+
+		saver.load(0) #go back to the position of pi
 
 except KeyboardInterrupt:
 	from math import floor
 	tf.changeStyle(reset=True)
-	tf.moveCursor(to={"column":0,"row":size["rows"]})
-	tf.clear(line=True)
-	digits=f.splitString(digits,(currentDigit//100)+1)
-	for digit in f.everyIndexInList(digits):
-		f.appendTo("pi.txt",digits[digit])
-		tf.moveCursor(to={"column":0,"row":size["rows"]})
+	tf.moveCursor(to={"column":0,"row":size["rows"]}) #go to bottom left
+	tf.clear(line=True) #clear progress bar
+
+	digits=f.splitString(digits,(currentDigit//100)+1) #split digits into a 100 chunks
+
+	for digit in f.everyIndexInList(digits): #save the digits
+		f.appendTo("pi.txt",digits[digit]) #append the next chunk
+		tf.moveCursor(to={"column":0,"row":size["rows"]}) #go to bottom left
+		#draw saving progress bar
 		tf.print(str(digit+1)+" % done saving ("+
 			str((digit*((currentDigit//100)+1))+len(digits[digit]))+"/"+
 			str(currentDigit+1)+")") #the +1 is for the d.p
 
+	# make the screen normal again
 	tf.cursorVisibility(show=True)
-	tf.moveCursor(to={"column":0,"row":size["rows"]})
-	tf.print(e.Escapes.Style.reset)
-	tf.clear(line=True)
 	tf.echoKeys(enable=True)
+
+	tf.moveCursor(to={"column":0,"row":size["rows"]}) #go to bottom left
+	tf.changeStyle(reset=True)
+	tf.clear(line=True) #clear the progress bar
 	exit(0)
