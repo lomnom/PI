@@ -16,16 +16,16 @@ def generatePi():
 			d,d1 = a/b, a1/b1
 
 digitColors={
-	1:e.Escapes.Color8.Foreground.cyan,
-	2:e.Escapes.Color8.Foreground.magenta,
-	3:e.Escapes.Color8.Foreground.red,
-	4:e.Escapes.Color8.Foreground.yellow,
-	5:e.Escapes.Color8.Foreground.green,
-	6:e.Escapes.Style.dim+e.Escapes.Color8.Foreground.cyan,
-	7:e.Escapes.Style.dim+e.Escapes.Color8.Foreground.magenta,
-	8:e.Escapes.Style.dim+e.Escapes.Color8.Foreground.red,
-	9:e.Escapes.Style.dim+e.Escapes.Color8.Foreground.yellow,
-	0:e.Escapes.Style.dim+e.Escapes.Color8.Foreground.green
+	1:tf.style(color8="cyan",foreground=True),
+	2:tf.style(color8="magenta",foreground=True),
+	3:tf.style(color8="red",foreground=True),
+	4:tf.style(color8="yellow",foreground=True),
+	5:tf.style(color8="green",foreground=True),
+	6:tf.style(color8="cyan",foreground=True,dim=True),
+	7:tf.style(color8="magenta",foreground=True,dim=True),
+	8:tf.style(color8="red",foreground=True,dim=True),
+	9:tf.style(color8="yellow",foreground=True,dim=True),
+	0:tf.style(color8="green",foreground=True,dim=True)
 }
 
 try:
@@ -103,6 +103,8 @@ except KeyboardInterrupt:
 	tf.clear(line=True) #clear progress bar
 
 	digits=f.splitString(digits,(currentDigit//100)+1) #split digits into a 100 chunks
+
+	f.write("pi.txt","") #delete digits that are already there
 
 	for digit in f.everyIndexInList(digits): #save the digits
 		f.appendTo("pi.txt",digits[digit]) #append the next chunk
