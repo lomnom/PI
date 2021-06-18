@@ -2,7 +2,7 @@
 ## Usage:
 
 `python3 PI.py <delay>`, where delay is the minimum time that calculating every digit must take  
-When stopped with `ctrl-c`, it will make a file called `PI.txt` with all the progress it has made in calculating pi.  
+When stopped with `ctrl-c`, it will make a file called `PI.txt` and save all the PI digits it had calculated.  
 **The next time it runs, it will start from the start again!**
 
 ## Screenshots:
