@@ -3,10 +3,10 @@
 ### running:
 `python3 PI.py` 
 ### controlling
-press `s` to save all culculated digits in "pi.txt"
+press `s` to save all culculated digits in "pi.txt"  
 press `p` to pause calculation  
-press `c` to change from avg d/s to current d/s to avg s/d to current s/d.
-press `q` to go to the quit screen, where you can press y/n to save/not save and press c to cancel.
+press `c` to change from avg d/s to current d/s to avg s/d to current s/d.  
+press `q` to go to the quit screen, where you can press y/n to save/not save and press c to cancel.  
 
 ## Screenshots:
 
