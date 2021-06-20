@@ -1,4 +1,4 @@
-import time
+import time as t
 import ESCAPES as e
 import TERMINALFUNC as tf
 from sys import argv
@@ -15,110 +15,274 @@ def generatePi():
 			a,a1 = 10*(a % b), 10*(a1 % b1)
 			d,d1 = a/b, a1/b1
 
-digitColors={
-	1:tf.style(color8="cyan",foreground=True),
-	2:tf.style(color8="magenta",foreground=True),
-	3:tf.style(color8="red",foreground=True),
-	4:tf.style(color8="yellow",foreground=True),
-	5:tf.style(color8="green",foreground=True),
-	6:tf.style(color8="cyan",foreground=True,dim=True),
-	7:tf.style(color8="magenta",foreground=True,dim=True),
-	8:tf.style(color8="red",foreground=True,dim=True),
-	9:tf.style(color8="yellow",foreground=True,dim=True),
-	0:tf.style(color8="green",foreground=True,dim=True)
-}
+def initScr():
+	global homePos
+	homePos=tf.getPosition()
 
-try:
-	# prepare the screen
-	tf.fillWithSpaces()
-	tf.moveCursor(home=True)
 	tf.echoKeys(disable=True)
 	tf.cursorVisibility(hide=True)
+	tf.raw(enable=True)
 
-	#set the progress variables
-	currentDigit=0
-	currentChar=0
-
-	size=tf.getTerminalSize()
-	saver=tf.CursorSaver()
-	digits=""
-
-	try:
-		frameLimiter=tf.FramerateLimiter(1/int(argv[1]))
-	except ZeroDivisionError:
-		frameLimiter=tf.FramerateLimiter(None)
-	frameChecker=tf.FramerateTracker()
-
-	for digit in generatePi():
-		if not currentDigit==0:
-			frameLimiter.endFrame()
-			frameLimiter.delayTillNextFrame()
-			frameChecker.endFrame()
-
-		frameChecker.startFrame()
-		frameLimiter.startFrame()
-
-		digits+=str(digit) #add digit to cache
-
-		tf.print(
-					tf.style(reset=True)+
-					digitColors[digit]+
-					str(digit)
-				)
-
-		if currentDigit==0: #print decimal point
-			tf.print(tf.style(bold=True,color8="blue",foreground=True)+".")
-			currentChar+=1
-			digits+="." #add dp to cache
-
-		# update progress
-		currentDigit+=1
-		currentChar+=1
-
-		# check if at end of line, move all pi digits up if so
-		if currentChar%size["columns"]==0:
-			tf.print("\n\n")
-			tf.changeStyle(reset=True)
-			tf.moveCursor(up=1)
-			tf.clear(line=True) #clear the now higher progress
-
-		saver.save(0) #save the position to the next pi digit
-
-		tf.moveCursor(to={"column":0,"row":size["rows"]}) #move to bottom left
-		tf.changeStyle(reset=True) #clear the pi digit color
-		tf.changeStyle(invert=True,bold=True,italic=True) #get the progress bar style
-		tf.clear(line=True) #clear the old progress bar
-
-		#draw progress bar
-		tf.print("currently at "+str(currentDigit)+
-			"th digit of pi. Avg digits per second: "+str(frameChecker.calculateAverageFPS())+
-			"d/s.")
-
-		saver.load(0) #go back to the position of pi
-
-except KeyboardInterrupt:
-	from math import floor
 	tf.changeStyle(reset=True)
-	tf.moveCursor(to={"column":0,"row":size["rows"]}) #go to bottom left
-	tf.clear(line=True) #clear progress bar
+	tf.fillWithSpaces(saveCursor=False)
+	tf.moveCursor(home=True)
 
-	digits=f.splitString(digits,(currentDigit//100)+1) #split digits into a 100 chunks
+def unInitScr():
+	tf.cursorVisibility(show=True)
+	tf.echoKeys(enable=True)
+	tf.raw(disable=True)
+	tf.moveCursor(to={"row":terminalSize["rows"],"column":0})
+	tf.changeStyle(reset=True)
+	tf.fillRowWithSpaces()
+	tf.moveCursor(column=0)
+
+def getColorPallete():
+	global digitColors
+	digitColors={
+		"1":tf.style(color8="cyan",foreground=True),
+		"2":tf.style(color8="magenta",foreground=True),
+		"3":tf.style(color8="red",foreground=True),
+		"4":tf.style(color8="yellow",foreground=True),
+		"5":tf.style(color8="green",foreground=True),
+		"6":tf.style(color8="cyan",foreground=True,dim=True),
+		"7":tf.style(color8="magenta",foreground=True,dim=True),
+		"8":tf.style(color8="red",foreground=True,dim=True),
+		"9":tf.style(color8="yellow",foreground=True,dim=True),
+		"0":tf.style(color8="green",foreground=True,dim=True)
+	}
+
+def calculatePi():
+	global piDigits
+	global piDigit
+	global rateWatcher
+	global calculatingPi
+	global piGenerator
+
+	if not "piGenerator" in globals():
+		piGenerator=generatePi()
+
+	if not "piDigit" in globals():
+		piDigit=0
+
+	if not "piDigits" in globals():
+		piDigits=""
+
+	calculatingPi=True
+
+	rateWatcher=tf.FramerateTracker()
+
+	while calculatingPi:
+		rateWatcher.startFrame()
+
+		digit=next(piGenerator)
+
+		if not piDigit==0:
+			rateWatcher.endFrame()
+		rateWatcher.startFrame()
+
+		piDigits+=str(digit)
+		piDigit+=1
+
+		rateWatcher.endFrame()
+
+def getBar(text,moveCursor=False):
+	global lastPosition
+	renderString=""
+	if moveCursor:
+		renderString+=tf.cursor(to={"row":lastPosition[1]+1,"column":1})
+	renderString+=tf.style(reset=True)
+	renderString+=tf.style(italic=True,invert=True,bold=True)
+	renderString+=tf.clearer(line=True)
+	renderString+=text
+	renderString+=tf.style(reset=True)
+
+	return renderString
+
+def pause():
+	global calculatingPi, renderingPi
+	global paused
+	paused=True
+	calculatingPi=False
+	renderingPi=False
+
+def unPause():
+	global paused
+
+	if paused:
+		f.runInParallel([[calculatePi,()]])
+		f.runInParallel([[renderPi,()]])
+
+	paused=False
+
+def stopAndStartPi():
+	global paused
+
+	if paused:
+		unPause()
+		tf.print(getBar("",moveCursor=True))
+	else:
+		pause()
+		t.sleep(0.5)
+		tf.print(getBar("paused",moveCursor=True))
+
+def halt():
+	global keyHandler
+
+	pause()
+
+	unInitScr()
+	keyHandler.halt()
+
+def bellButItTakesArgs(*args):
+	tf.bell()
+
+def initKeyHandler():
+	global keyHandler
+
+	keyHandler=tf.KeyHandler(
+		{
+			"p":[stopAndStartPi,()],
+			"q":[exitMenu,()],
+			"s":[save,()],
+			"default":bellButItTakesArgs
+		}
+	)
+
+def renderPi():
+	global renderingPi
+	
+	renderingPi=True
+	framerateLimiter=tf.FramerateLimiter(60)
+
+	while renderingPi:
+		framerateLimiter.startFrame()
+
+		tf.print(getPiRender(getPiProgressBar()))
+
+		framerateLimiter.endFrame()
+		framerateLimiter.delayTillNextFrame()
+
+def save():
+	global piDigits, terminalSize
+	global lastPosition
+	global keyHandler
+	pause()
+	oldKeys=keyHandler.actions
+	keyHandler.actions={"default":bellButItTakesArgs}
+
+	t.sleep(1)
+
+	digitChunks=f.splitString(piDigits,(len(piDigits)//100)+1) #split digits into a 100 chunks
 
 	f.write("pi.txt","") #delete digits that are already there
 
-	for digit in f.everyIndexInList(digits): #save the digits
-		f.appendTo("pi.txt",digits[digit]) #append the next chunk
-		tf.moveCursor(to={"column":0,"row":size["rows"]}) #go to bottom left
-		#draw saving progress bar
-		tf.print(str(digit+1)+" % done saving ("+
-			str((digit*((currentDigit//100)+1))+len(digits[digit]))+"/"+
-			str(currentDigit+1)+")") #the +1 is for the d.p
+	tf.moveCursor(to={"row":lastPosition[1]+1,"column":0})
+	tf.clear(line=True)
 
-	# make the screen normal again
-	tf.cursorVisibility(show=True)
-	tf.echoKeys(enable=True)
+	for digit in f.everyIndexInList(digitChunks): #save the digits
+		f.appendTo("pi.txt",digitChunks[digit]) #append the next chunk
+		tf.changeStyle(italic=True,invert=True,bold=True)
+		tf.print("{}% done saving".format(digit+1))
+		tf.moveCursor(to={"row":lastPosition[1]+1,"column":0}) #go to bottom left
 
-	tf.moveCursor(to={"column":0,"row":size["rows"]}) #go to bottom left
-	tf.changeStyle(reset=True)
-	tf.clear(line=True) #clear the progress bar
-	exit(0)
+	if pause:
+		unPause()
+
+	keyHandler.actions=oldKeys
+
+def startKeyHandler():
+	global keyHandler
+
+	initKeyHandler()
+
+	keyHandler.start()
+
+def getPiRender(progressBar): #(gets render of unrendered)
+	global terminalSize, lastPosition
+	global piDigits
+	global haltRenderPi
+	global renderedDigits
+	global digitColors
+	global homePos
+
+	renderString=""
+
+	if not "lastPosition" in globals():
+		lastPosition=[1,1]
+
+	if not "renderedDigits" in globals():
+		renderedDigits=0
+
+	renderString+=tf.cursor(to={"row":lastPosition[1]+1,"column":0})
+	renderString+=progressBar+tf.clearer(fromCursor=True,line=True,toEnd=True)+tf.style(reset=True)
+
+	haltRenderPi=False
+
+	unRenderedDigits=piDigits[renderedDigits:]
+	renderedDigits=len(piDigits)
+
+	if lastPosition[1]>=terminalSize["rows"]-1:
+		renderString+=tf.cursor(to={"row":terminalSize["rows"]-1,"column":lastPosition[0]})
+	else:
+		renderString+=tf.cursor(to={"row":lastPosition[1],"column":lastPosition[0]})
+
+	for digit in unRenderedDigits:
+		renderString+=digitColors[digit]+digit+tf.style(reset=True)
+		lastPosition[0]+=1
+
+		if lastPosition[0]==terminalSize["columns"]+1:
+			renderString+="\r\n\n"+progressBar+tf.style(reset=True)
+			renderString+=tf.cursor(column=1)+tf.cursor(up=1)
+			renderString+=tf.clearer(line=True)
+
+			lastPosition[0]=1
+			lastPosition[1]+=1
+
+	return renderString
+
+def getPiProgressBar():
+	global piDigit,rateWatcher
+	return getBar(
+				"currently at {}th digit of pi. Avg digits per second: {}d/s."\
+					.format(piDigit,rateWatcher.calculateAverageFPS())
+				)
+
+def saveAndHalt():
+	save()
+	halt()
+
+def exitMenu():
+	global keyHandler
+	global oldActions
+	pause()
+	oldActions=keyHandler.actions
+	keyHandler.actions={
+		"y":[saveAndHalt,()],
+		"n":[halt,()],
+		"c":[cancelExit,()],
+		"default":bellButItTakesArgs
+	}
+
+	tf.print(
+		getBar("Do you want to save befor exiting? Press y/n to save/not save. Press c to cancel.",moveCursor=True)
+		)
+
+def cancelExit():
+	global oldActions, keyHandler
+	unPause()
+	keyHandler.actions=oldActions
+
+def main():
+	global paused
+	paused=False
+
+	global piGenerator, terminalSize
+	terminalSize=tf.getTerminalSize()
+
+	getColorPallete()
+	initScr()
+	f.runInParallel([[calculatePi,()]])
+	f.runInParallel([[renderPi,()]])
+	startKeyHandler()
+
+main()
