@@ -264,7 +264,7 @@ def exitMenu():
 	}
 
 	tf.print(
-		getBar("Do you want to save befor exiting? Press y/n to save/not save. Press c to cancel.",moveCursor=True)
+		getBar("Do you want to save before exiting? Press y/n to save/not save. Press c to cancel.",moveCursor=True)
 		)
 
 def cancelExit():
