@@ -122,7 +122,7 @@ def stopAndStartPi():
 		tf.print(getBar("",moveCursor=True))
 	else:
 		pause()
-		t.sleep(0.5)
+		t.sleep(0.02)
 		tf.print(getBar("paused",moveCursor=True))
 
 def halt():
@@ -136,6 +136,14 @@ def halt():
 def bellButItTakesArgs(*args):
 	tf.bell()
 
+# 0-average d/s
+# 1-current d/s
+# 2-average s/d
+# 3-current s/d
+def changeData():
+	global dataSource
+	dataSource=(dataSource+1)%4
+
 def initKeyHandler():
 	global keyHandler
 
@@ -144,6 +152,7 @@ def initKeyHandler():
 			"p":[stopAndStartPi,()],
 			"q":[exitMenu,()],
 			"s":[save,()],
+			"c":[changeData,()],
 			"default":bellButItTakesArgs
 		}
 	)
@@ -170,7 +179,7 @@ def save():
 	oldKeys=keyHandler.actions
 	keyHandler.actions={"default":bellButItTakesArgs}
 
-	t.sleep(1)
+	t.sleep(0.02)
 
 	digitChunks=f.splitString(piDigits,(len(piDigits)//100)+1) #split digits into a 100 chunks
 
@@ -242,10 +251,28 @@ def getPiRender(progressBar): #(gets render of unrendered)
 
 def getPiProgressBar():
 	global piDigit,rateWatcher
-	return getBar(
-				"currently at {}th digit of pi. Avg digits per second: {}d/s."\
-					.format(piDigit,rateWatcher.calculateAverageFPS())
-				)
+	global dataSource
+
+	if dataSource==0:
+		return getBar(
+					"currently at {}th digit of pi. Avg digits per second: {}d/s."\
+						.format(piDigit,rateWatcher.calculateAverageFPS())
+					)
+	elif dataSource==1:
+		return getBar(
+					"currently at {}th digit of pi. Curr digits per second: {}d/s."\
+						.format(piDigit,rateWatcher.calculateAverageFPS())
+					)
+	elif dataSource==2:
+		return getBar(
+					"currently at {}th digit of pi. Avg seconds per digit : {}s/d."\
+						.format(piDigit,rateWatcher.calculateAverageFrameTime())
+					)
+	elif dataSource==3:
+		return getBar(
+					"currently at {}th digit of pi. Curr seconds per digit : {}s/d."\
+						.format(piDigit,rateWatcher.calculateCurrentFrameTime())
+					)
 
 def saveAndHalt():
 	save()
@@ -278,6 +305,9 @@ def main():
 
 	global piGenerator, terminalSize
 	terminalSize=tf.getTerminalSize()
+
+	global dataSource
+	dataSource=0
 
 	getColorPallete()
 	initScr()
