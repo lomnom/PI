@@ -22,7 +22,7 @@ Press `q` to go to the quit screen, where you can press y/n to save/not save and
 ![done](https://github.com/lomnom/PI/blob/main/screenshots/done.png)  
 ![result](https://github.com/lomnom/PI/blob/main/screenshots/result.png)  
 ![cpu](https://github.com/lomnom/PI/blob/main/screenshots/cpu.png)  
-<sup>Thread 1 is used for calculating pi, thread 2 is used for rendering pi, thread 3 is used to handle keys, main thread is left unused</sup>  
+<sup>In case you were wondering why there are 4 threads: Thread 1 is used for calculating pi, thread 2 is used for rendering pi, thread 3 is used to handle keys, main thread is left unused</sup>  
   
 ## Dependencies:  
 - [TERMINALFUNC](https://github.com/lomnom/TERMINALFUNC)  
