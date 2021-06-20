@@ -1,9 +1,9 @@
 # PI, the most ineffecient and beautiful pi calculator!
 ## Usage:
-
-`python3 PI.py <delay>`, where delay is the minimum time that calculating every digit must take  
-When stopped with `ctrl-c`, it will make a file called `PI.txt` and save all the PI digits it had calculated.  
-**The next time it runs, it will start from the start again!**
+running: `python3 PI.py`  
+press `s` to save all culculated digits in "pi.txt"
+press `p` to pause calculation
+press `q` to go to the quit screen, where you can press y/n to save/not save and press c to cancel.
 
 ## Screenshots:
 
