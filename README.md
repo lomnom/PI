@@ -21,7 +21,6 @@ Press `q` to go to the quit screen, where you can press y/n to save/not save and
 ![exiting](https://github.com/lomnom/PI/blob/main/screenshots/exiting.png)
 ![done](https://github.com/lomnom/PI/blob/main/screenshots/done.png)
 ![result](https://github.com/lomnom/PI/blob/main/screenshots/result.png)
-(I updated it to use multiple threads, and was too lazy to redo the decimal point so you wont see the ".")
 
 ## Dependencies:
 - [TERMINALFUNC](https://github.com/lomnom/TERMINALFUNC)  
