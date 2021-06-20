@@ -21,6 +21,7 @@ Press `q` to go to the quit screen, where you can press y/n to save/not save and
 ![exiting](https://github.com/lomnom/PI/blob/main/screenshots/exiting.png)
 ![done](https://github.com/lomnom/PI/blob/main/screenshots/done.png)
 ![result](https://github.com/lomnom/PI/blob/main/screenshots/result.png)
+![cpu](https://github.com/lomnom/PI/blob/main/screenshots/cpu.png)
 
 ## Dependencies:
 - [TERMINALFUNC](https://github.com/lomnom/TERMINALFUNC)  
