@@ -5,7 +5,7 @@
 ### controlling
 Press `s` to save all calculated digits in "pi.txt".  
 Press `p` to pause calculation.  
-Press `c` to change from avg d/s to current d/s to avg s/d to current s/d.  
+Press `c` to toggle between avg d/s, current d/s, avg s/d and current s/d.  
 Press `q` to go to the quit screen, where you can press y/n to save/not save and press c to cancel.  
 
 ## Screenshots:
