@@ -4,7 +4,7 @@ import TERMINALFUNC as tf
 from sys import argv
 import FUNC as f
 
-def generatePi():
+def generatePi(): #copied from stackoverflow, somewhere
 	k,a,b,a1,b1 = 2,4,1,12,4
 	while True:
 		p,q,k = k * k, 2 * k + 1, k + 1
