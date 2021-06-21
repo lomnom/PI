@@ -87,13 +87,14 @@ def calculatePi():
 
 def getBar(text,moveCursor=False):
 	global lastPosition
+	global terminalSize
 	renderString=""
 	if moveCursor:
 		renderString+=tf.cursor(to={"row":lastPosition[1]+1,"column":1})
 	renderString+=tf.style(reset=True)
 	renderString+=tf.style(italic=True,invert=True,bold=True)
 	renderString+=tf.clearer(line=True)
-	renderString+=text
+	renderString+=f.cutString(text,terminalSize["columns"])
 	renderString+=tf.style(reset=True)
 
 	return renderString
@@ -140,9 +141,10 @@ def bellButItTakesArgs(*args):
 # 1-current d/s
 # 2-average s/d
 # 3-current s/d
+# 4-current runTime
 def changeData():
 	global dataSource
-	dataSource=(dataSource+1)%4
+	dataSource=(dataSource+1)%5
 
 def initKeyHandler():
 	global keyHandler
@@ -250,7 +252,7 @@ def getPiRender(progressBar): #(gets render of unrendered)
 	return renderString
 
 def getPiProgressBar():
-	global piDigit,rateWatcher
+	global piDigit,rateWatcher, startTime
 	global dataSource
 
 	if dataSource==0:
@@ -272,6 +274,11 @@ def getPiProgressBar():
 		return getBar(
 					"currently at {}th digit of pi. Curr seconds per digit : {}s/d."\
 						.format(piDigit,rateWatcher.calculateCurrentFrameTime())
+					)
+	elif dataSource==4:
+		return getBar(
+					"currently at {}th digit of pi. Curr runtime: {}s"\
+						.format(piDigit,t.perf_counter()-startTime)
 					)
 
 def saveAndHalt():
@@ -308,6 +315,9 @@ def main():
 
 	global dataSource
 	dataSource=0
+
+	global startTime
+	startTime=t.perf_counter()
 
 	getColorPallete()
 	initScr()
