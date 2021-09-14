@@ -1,4 +1,4 @@
-# PI, the most ineffecient and beautiful pi calculator!  
+# PI, the most ineffecient and beautiful pi calculator (working on an effecient c++ version now!!!1!!)!  
 ## Usage:  
 ### running:  
 `python3 PI.py`  
