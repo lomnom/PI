@@ -1,4 +1,4 @@
-# PI, the most ineffecient and beautiful pi calculator (working on an effecient c++ version now!!!1!!)!  
+# PI, the most ineffecient and beautiful pi calculator
 ## Usage:  
 ### running:  
 `python3 PI.py`  
@@ -27,3 +27,4 @@ Press `q` to go to the quit screen, where you can press y/n to save/not save and
 ## Dependencies:  
 - [TERMINALFUNC](https://github.com/lomnom/TERMINALFUNC)  
 The other dependencies are already dependencies of TERMINALFUNC
+# (TODO: **STOP DEPENDING ON THE SHITTY LIBRARIES THAT I MADE WHEN I WAS STILL A NOOB**)
